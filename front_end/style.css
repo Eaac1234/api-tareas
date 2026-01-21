@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+}
+
+html, body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.header {
+    text-align: center;
+    background-color: #FEF9E7;
+}
+
+.header-navigation {
+    list-style: none;
+    margin: 0;
+    padding: 1rem;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.header-navigation-task {
+    background-color: #FEF5E7;
+    border: inset;
+    border-radius: 3rem;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.main-text {
+    text-align: center;
+}
+
+.background {
+    min-height: 60vh;
+    width: 100%;
+    background: url(img/tasks.jpg) center / cover no-repeat;
+    padding-left: clamp(1rem, 10vw, 8rem);
+}
+
+.information {
+    font-size: larger;
+    margin: 0.5rem 0;
+}
