@@ -15,6 +15,8 @@ def get_date():
 def checkout():
     pass
 
+
+
 def insert(title:str,descripcion:str):
     id=created_id()
     date=get_date()
@@ -31,13 +33,40 @@ def insert(title:str,descripcion:str):
     disconnect(connect)
 
 def update(id:int,i:list):
-    update=["Title","Descripcion","State"]
-    date=date
+    copy_values=[]
+    copy_keys=[]
+    date=get_date()
+    date={"Last_Update":date}
+    i.append(date)
+    for d in i:
+       copy_keys.append(list(d.items())[0][0])
+       copy_values.append(list(d.items())[0][1])
     cursor,connect=get_connection()
-    cursor.execute("""
-    UPDATE tasks SET 
-    """)
+    update_commit(id,cursor,connect,copy_keys,copy_values,len(copy_keys)-1)
     disconnect(connect)
+
+def update_commit(id:int,cursor,connect,keys:list,values:list,i:int):
+    if i<0:
+        connect.commit()
+        return True
+    else:
+        key=keys[i]
+        value=values[i]
+        sql = f"""
+        UPDATE tasks
+        SET {key} = ?
+        WHERE ID = ?
+        """
+        cursor.execute(sql,(value,id))
+        i -=1
+        update_commit(id,cursor,connect,keys,values,i)
+     
+
+
+     
+
+
+
 
 def delete(id:int):
     cursor,connect=get_connection()
@@ -67,8 +96,13 @@ def show():
         print(a)
     disconnect(connect)
 
-insert('hola','hola')
-show()
+#insert('hola','hola')
+#show()
 #print("\n")
 #print(delete(5361872372))
+#show()
+
+#lista=[{"Title":"hola mate"},{"Descripcion":"hola como estas eduardo"},{"State":0}]
+#delete(2327134934)
+#update(6175357414,lista)
 #show()
