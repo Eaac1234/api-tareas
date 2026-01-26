@@ -1,6 +1,8 @@
 from database import get_connection,disconnect
 from random import randint
 from datetime import datetime
+from models import task
+
 
 def created_id():
     id=''
@@ -25,6 +27,12 @@ def insert(title:str,descripcion:str):
     date=get_date()
     state=0
     update="None"
+    task.ID=id
+    task.Title=title
+    task.Descripcion=descripcion
+    task.State=0
+    task.Created=date
+    task.Last_Update=update
     cursor,connect=get_connection()
     cursor.execute(
         """
@@ -38,12 +46,12 @@ def insert(title:str,descripcion:str):
         "status":"Succesful",
         "msg":"created user",
         "info":{
-            "ID":id,
-            "Title":title,
-            "Descripcion":descripcion,
-            "State":state,
-            "Created":date,
-            "Last_update":update
+            "ID":task.ID,
+            "Title":task.Title,
+            "Descripcion":task.Descripcion,
+            "State":task.State,
+            "Created":task.Created,
+            "Last_update":task.Last_Update
         }
     }
 
@@ -63,12 +71,13 @@ def update(id:int,i:dict):
     cursor,connect=get_connection()
     update_commit(id,cursor,connect,copy_keys,copy_values,len(copy_keys)-1)
     disconnect(connect)
+    task.ID=id
     if checkout(cursor):
         return {
             "Status":"successful",
             "msg":"Tarea Editada",
             "Task":{
-                "ID":id
+                "ID":task.ID
             }
         }
     else:
@@ -76,7 +85,7 @@ def update(id:int,i:dict):
             "Status":"Failed",
             "msg":"No se pudo encontrar la tarea a editar",
             "Task":{
-                "ID":id
+                "ID":task.ID
             }
         }
 
@@ -102,6 +111,7 @@ def update_commit(id:int,cursor,connect,keys:list,values:list,i:int):
 def delete(id:int):
     cursor,connect=get_connection()
     id=int(id)
+    task.ID=id
     cursor.execute(
         """
         DELETE FROM tasks WHERE ID==?
@@ -114,7 +124,7 @@ def delete(id:int):
             "Status":"successful",
             "msg":"Tarea eliminada",
             "Task":{
-                "ID":id
+                "ID":task.ID
             }
         }
     
@@ -124,13 +134,14 @@ def delete(id:int):
             "Status":"Failed",
             "msg":"Tarea no encontrada",
             "Task":{
-                "ID":id
+                "ID":task.ID
             }
         }
     
 
 
 def show():
+    tasks=[]
     cursor,connect=get_connection()
     cursor.execute(
         """
@@ -138,19 +149,34 @@ def show():
         """
     )
     registers=cursor.fetchall()
-    return show_task(connect,registers)
-
-def show_task(connect,registers):
-    print("Tus tareas pendientes")
     for a in registers:
         print(a)
-    disconnect(connect)
+    
+    tasks=show_task(connect,registers,len(registers)-1,tasks)
+    return{
+        "Status":"successful",
+        "msg":"Tareas disponibles",
+        "tasks":tasks
+    }
+
+
+def show_task(connect,registers,i:int,info:list):
+    if i<0:
+        disconnect(connect)
+        return info
+    else:
+        tasks=task(ID=registers[i][0], Title=registers[i][1],Descripcion=registers[i][2],State=registers[i][3],Created=registers[i][4],Last_Update=registers[i][5])
+        i-=1
+        info.append(tasks)
+        return show_task(connect,registers,i,info)
+    
 
 
 
 #dictionary={"Title":"Alberto","Descripcion":"Arcos"}
-#show()
+show()
 #print(update(578772197,dictionary))
 #show()
+
 
 
